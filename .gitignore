@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+model/evaluation_results.json.tmp
+database/*.db
+database/*.db-shm
+database/*.db-wal
+model/*.pkl
+.env
