@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Administrator Login — SmartDesk AI{% endblock %}
+{% block body %}
+<div class="auth-page auth-admin-page">
+  <div class="auth-split">
+    <section class="auth-intro admin-intro">
+      <div class="auth-logo"><div class="logo-icon"><svg width="36" height="36" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#4F46E5"/><path d="M8 20L14 14L18 18L24 12" stroke="white" stroke-width="2.5" fill="none"/></svg></div><span class="logo-text">SmartDesk AI</span></div>
+      <span class="auth-kicker">SECURE ADMIN PORTAL</span><h1>Run support operations with clarity.</h1>
+      <p>Review escalations, manage tickets, update the knowledge base, and monitor users from one protected workspace.</p>
+      <div class="auth-feature"><b>Role-protected access</b><span>Only administrator accounts can enter this portal.</span></div>
+    </section>
+    <section class="auth-card elevated">
+      <span class="auth-role admin-role">Administrator</span><h2 class="auth-title">Admin sign in</h2><p class="auth-subtitle">Enter your authorized SmartDesk credentials.</p>
+      <form method="POST" class="auth-form">
+        <div class="form-group"><label for="username">Admin username</label><input id="username" name="username" placeholder="admin" required autofocus autocomplete="username"></div>
+        <div class="form-group"><label for="password">Password</label><input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password"></div>
+        <button class="btn btn-primary btn-full" type="submit">Open Admin Console</button>
+      </form>
+      <div class="auth-demo"><p class="muted-text">Demo: <strong>admin</strong> / <strong>admin123</strong></p></div>
+      <div class="auth-footer"><span>Not an administrator?</span><a href="{{ url_for('login') }}">User sign in</a></div>
+    </section>
+  </div>
+</div>
+{% endblock %}
