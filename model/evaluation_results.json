@@ -1,0 +1,20 @@
+{
+  "test_queries": 40,
+  "classes": 20,
+  "accuracy": 0.95,
+  "precision_weighted": 0.975,
+  "recall_weighted": 0.95,
+  "f1_weighted": 0.95,
+  "errors": [
+    {
+      "query": "I cannot remember my sign in password",
+      "expected": "password_reset",
+      "predicted": "login_problem"
+    },
+    {
+      "query": "messages remain in my outbox",
+      "expected": "email_issue",
+      "predicted": "login_problem"
+    }
+  ]
+}
