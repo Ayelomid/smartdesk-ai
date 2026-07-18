@@ -1,0 +1,204 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": [
+        "hello", "hi", "hey", "good morning", "good afternoon", "good evening",
+        "howdy", "what's up", "greetings", "hi there", "hello there"
+      ],
+      "responses": [
+        "Hello! I'm SmartDesk AI, your IT support assistant. How can I help you today?",
+        "Hi there! Welcome to IT support. What issue can I assist you with?",
+        "Hey! I'm here to help with any IT issues. What do you need?"
+      ]
+    },
+    {
+      "tag": "password_reset",
+      "patterns": [
+        "reset my password", "forgot password", "change password", "password expired",
+        "can't login", "cannot login", "password reset", "unlock account password",
+        "password not working", "lost my password", "help with password"
+      ],
+      "responses": [
+        "I can help with a password reset! Please visit the company self-service portal at https://portal.company.com/reset, or I can raise a ticket to have IT reset it for you. Which do you prefer?",
+        "For a password reset, you can use the self-service portal or I'll escalate to the IT team. Do you want me to create a ticket?"
+      ]
+    },
+    {
+      "tag": "network_issue",
+      "patterns": [
+        "no internet", "internet not working", "network down", "wifi not connecting",
+        "cannot connect to network", "vpn issue", "slow internet", "network problem",
+        "lost connection", "wifi problem", "ethernet not working", "network disconnected",
+        "wifi keeps disconnecting", "wireless drops frequently", "wifi connected no internet"
+      ],
+      "responses": [
+        "Network issues can be frustrating! First, try restarting your router/switch. If you're on VPN, disconnect and reconnect. If the issue persists, I'll create a ticket for the network team.",
+        "Let me help with your network issue. Can you confirm: Are you on WiFi or wired? Have you tried restarting your device? If basic steps don't work, I'll escalate to IT."
+      ]
+    },
+    {
+      "tag": "software_install",
+      "patterns": [
+        "install software", "install application", "need software", "software request",
+        "download program", "install program", "need an app", "software installation",
+        "request software", "can you install", "need access to", "software access"
+      ],
+      "responses": [
+        "For software installation requests, I'll need to raise a ticket with your manager's approval. Which software do you need, and what is your business justification?",
+        "Software installations require IT approval. I'll create a request ticket. Please provide the software name and why you need it."
+      ]
+    },
+    {
+      "tag": "printer_problem",
+      "patterns": [
+        "printer not working", "cannot print", "printer offline", "printer error",
+        "print job stuck", "printer not responding", "can't print", "printer issue",
+        "printing problem", "paper jam", "printer says offline"
+      ],
+      "responses": [
+        "For printer issues, try these steps: 1) Check the printer is powered on. 2) Clear any paper jams. 3) Remove and re-add the printer. 4) Restart the print spooler. If these don't work, I'll raise a ticket.",
+        "Printer troubles are common! First check if it's online and connected. Try cancelling all pending jobs and restarting. Still stuck? I'll escalate to IT."
+      ]
+    },
+    {
+      "tag": "email_issue",
+      "patterns": [
+        "email not working", "outlook not opening", "cannot send email", "email problem",
+        "inbox not loading", "email error", "can't receive emails", "email sync issue",
+        "outlook crashing", "email account issue", "not getting emails"
+      ],
+      "responses": [
+        "For email issues, try: 1) Restarting Outlook. 2) Checking your internet connection. 3) Running Office repair. If Outlook still won't work, I'll log a ticket for the IT team.",
+        "Email problems can have several causes. Is Outlook not opening, or can you open it but not send/receive? Let me know and I'll provide targeted steps or raise a ticket."
+      ]
+    },
+    {
+      "tag": "account_locked",
+      "patterns": [
+        "account locked", "my account is locked", "locked out", "too many password attempts",
+        "account disabled", "cannot access account", "account suspension", "login locked",
+        "locked out of system", "account blocked"
+      ],
+      "responses": [
+        "Account lockouts are usually due to too many failed login attempts. I'll raise a ticket immediately to have your account unlocked. Please provide your username or employee ID.",
+        "I can see you're locked out — let me escalate this urgently. Your account unlock request will be sent to IT with high priority."
+      ]
+    },
+    {
+      "tag": "slow_computer",
+      "patterns": [
+        "computer is slow", "laptop is slow", "pc running slow", "slow performance",
+        "computer freezing", "pc lagging", "system slow", "laptop freezing",
+        "computer not responding", "everything is slow", "computer hanging"
+      ],
+      "responses": [
+        "A slow computer can have many causes. Try: 1) Restart your PC. 2) Check for Windows updates. 3) Run a disk cleanup. 4) Close unused programs. If it's still slow after a restart, I'll log a performance ticket.",
+        "For slow performance, first restart your computer and close unnecessary tabs/programs. If the issue continues, I'll raise a ticket for IT to investigate."
+      ]
+    },
+    {
+      "tag": "virus_malware",
+      "patterns": [
+        "virus", "malware", "ransomware", "computer has virus", "suspicious email",
+        "phishing email", "clicked a link", "computer infected", "suspicious pop-up",
+        "antivirus alert", "malware detected", "suspicious activity"
+      ],
+      "responses": [
+        "This is a HIGH PRIORITY security issue! Please: 1) Disconnect from the network immediately. 2) Do NOT click anything else. 3) I'm raising an urgent security ticket right now. IT Security will contact you shortly.",
+        "Potential security threat detected! I'm escalating this immediately to the Security team. Please isolate your device from the network and do not use it until IT responds."
+      ]
+    },
+    {
+      "tag": "hardware_fault",
+      "patterns": [
+        "screen broken", "keyboard not working", "mouse not working", "monitor issue",
+        "laptop screen cracked", "hardware problem", "USB not working", "headset broken",
+        "charger not working", "hardware fault", "device not working", "broken hardware"
+      ],
+      "responses": [
+        "For hardware faults, I'll raise a ticket for the IT hardware team. They'll assess whether a repair or replacement is needed. Can you describe the hardware issue in detail?",
+        "Hardware issues need physical inspection by IT. I'll log a hardware fault ticket with your details. Please describe what's broken and how it happened."
+      ]
+    },
+    {
+      "tag": "two_factor_issue",
+      "patterns": ["two factor code not arriving", "2fa code not working", "authenticator code invalid", "lost authentication phone", "cannot approve login", "verification code expired", "mfa problem"],
+      "responses": ["For two-factor issues: set your phone date and time to automatic, request one fresh code, and use the newest code only. If you lost your phone or still cannot authenticate, I will route an identity-verification ticket to Account Support."]
+    },
+    {
+      "tag": "login_problem",
+      "patterns": ["login failed", "invalid credentials", "sign in not working", "session keeps expiring", "website logs me out", "cannot sign into portal"],
+      "responses": ["Check Caps Lock and confirm you are using your full work username. Then clear the site's cookies or try a private browser window. Avoid repeated attempts because they may lock the account."]
+    },
+    {
+      "tag": "vpn_issue",
+      "patterns": ["vpn not connecting", "vpn keeps disconnecting", "remote access failed", "vpn authentication error", "cannot connect from home", "company vpn problem"],
+      "responses": ["Confirm normal internet access first, then fully close and reopen the VPN client. Select the nearest company gateway and sign in again. If it disconnects repeatedly, restart the router and update the VPN client."]
+    },
+    {
+      "tag": "software_crash",
+      "patterns": ["application keeps crashing", "program closes unexpectedly", "app not responding", "software freezes", "application error", "program will not open"],
+      "responses": ["Save any open work, restart the application, and install approved updates. If it still crashes, restart the computer and note the exact error message and the action that triggers it."]
+    },
+    {
+      "tag": "windows_update",
+      "patterns": ["windows update stuck", "update will not install", "computer keeps updating", "update failed", "restart for updates", "mac update problem"],
+      "responses": ["Keep the device connected to power and a stable network. Restart once, check that at least 10 GB of storage is free, then retry the update from System Settings. Do not force power off while an update percentage is moving."]
+    },
+    {
+      "tag": "storage_full",
+      "patterns": ["disk is full", "no storage space", "low disk space", "hard drive full", "cannot save file", "storage almost full"],
+      "responses": ["Empty the recycle bin, remove unneeded downloads, and move large approved files to company cloud storage. Do not delete system folders. Aim to keep at least 10–15% of the drive free."]
+    },
+    {
+      "tag": "audio_issue",
+      "patterns": ["no sound", "microphone not working", "speakers not working", "cannot hear meeting", "headset not detected", "audio problem", "teams microphone muted"],
+      "responses": ["Check that the correct speaker and microphone are selected in both system settings and the meeting app. Unmute the device, reconnect the headset, and test it in the system sound panel."]
+    },
+    {
+      "tag": "camera_issue",
+      "patterns": ["camera not working", "webcam not detected", "video is black", "teams camera unavailable", "zoom camera problem", "cannot turn on camera"],
+      "responses": ["Close other apps that may be using the camera, check the physical privacy shutter, and allow camera permission for the meeting app in system privacy settings. Then restart the app."]
+    },
+    {
+      "tag": "overheating",
+      "patterns": ["laptop overheating", "computer is very hot", "fan is loud", "laptop shuts down from heat", "device burning hot", "hot laptop"],
+      "responses": ["Save your work and shut the laptop down. Unplug it, place it on a hard flat surface, and keep vents clear. Do not continue using a device that smells burnt or has a swollen battery; a hardware ticket will be created."]
+    },
+    {
+      "tag": "blue_screen",
+      "patterns": ["blue screen", "computer keeps restarting", "kernel panic", "stop code", "pc crashes on startup", "boot loop", "computer will not boot"],
+      "responses": ["Disconnect non-essential USB devices and record the stop code or error shown. Try one normal restart. If the device remains in a boot loop, stop restarting it so IT can protect your data and inspect it."]
+    },
+    {
+      "tag": "phishing",
+      "patterns": ["clicked phishing link", "entered password on suspicious site", "fake login page", "opened suspicious attachment", "sent credentials to scam", "phishing link"],
+      "responses": ["Disconnect the device from Wi-Fi or Ethernet immediately. From a different trusted device, change your password and revoke active sessions. Do not delete the email; Security needs it as evidence. A critical ticket will be created."]
+    },
+    {
+      "tag": "raise_ticket",
+      "patterns": [
+        "raise a ticket", "create a ticket", "submit a ticket", "log a ticket",
+        "open a ticket", "report an issue", "new ticket", "I need help",
+        "log issue", "report problem"
+      ],
+      "responses": [
+        "Of course! I'll direct you to the ticket submission form where you can provide all the details. Click 'Raise Ticket' below or visit /submit-ticket.",
+        "I'll help you raise a ticket. Please click the 'Raise Ticket' button below, or describe your issue here and I'll fill in the details for you."
+      ]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": [
+        "bye", "goodbye", "see you", "that's all", "thanks bye", "done", "exit",
+        "quit", "nothing else", "all good now", "resolved"
+      ],
+      "responses": [
+        "Glad I could help! Don't hesitate to reach out if you have more IT issues. Have a great day!",
+        "Thanks for using SmartDesk AI! Your issue has been logged. Have a great day!",
+        "Goodbye! If you need more help, I'm always here. Stay productive!"
+      ]
+    }
+  ]
+}
