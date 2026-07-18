@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Login — SmartDesk AI{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-split">
+    <section class="auth-intro">
+      <div class="auth-logo">
+        <div class="logo-icon"><svg width="36" height="36" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563EB"/><path d="M8 20L14 14L18 18L24 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="12" r="2" fill="white"/></svg></div>
+        <span class="logo-text">SmartDesk AI</span>
+      </div>
+      <span class="auth-kicker">INTELLIGENT IT SUPPORT</span>
+      <h1>Get back to productive work, faster.</h1>
+      <p>Ask for help in plain language, receive practical troubleshooting steps, and automatically route issues that need an IT specialist.</p>
+      <div class="auth-points"><span>✓ Instant AI troubleshooting</span><span>✓ Automatic ticket routing</span><span>✓ Track every support request</span></div>
+    </section>
+    <div class="auth-card elevated">
+        <div class="auth-logo">
+            <div class="logo-icon">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="#2563EB"/>
+                    <path d="M8 20L14 14L18 18L24 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="24" cy="12" r="2" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">SmartDesk AI</span>
+        </div>
+        <span class="auth-role">Employee Portal</span>
+        <h2 class="auth-title">Welcome back</h2>
+        <p class="auth-subtitle">Sign in to your IT support account</p>
+
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+        </form>
+
+        <div class="auth-footer">
+            <span>Don't have an account?</span>
+            <a href="{{ url_for('register') }}">Create account</a>
+        </div>
+
+        <a class="admin-login-link" href="{{ url_for('admin_login') }}">Administrator sign in →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
