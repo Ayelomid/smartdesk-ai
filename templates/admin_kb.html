@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Base — SmartDesk AI Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+    <aside class="sidebar sidebar-admin">
+        <div class="sidebar-logo">
+            <div class="logo-icon-sm"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563EB"/><path d="M8 20L14 14L18 18L24 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="12" r="2" fill="white"/></svg></div>
+            <span>SmartDesk AI</span>
+        </div>
+        <div class="sidebar-section-label">ADMIN</div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+            <a href="{{ url_for('admin_tickets') }}" class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>All Tickets</a>
+            <a href="{{ url_for('admin_kb') }}" class="nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Knowledge Base</a>
+            <a href="{{ url_for('admin_users') }}" class="nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Users</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar admin-avatar">A</div>
+            <div class="user-info"><span class="user-name">{{ session['username'] }}</span><span class="user-role">Administrator</span></div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></a>
+        </div>
+    </aside>
+
+    <main class="page-main">
+        <div class="page-header">
+            <div><h1>Knowledge Base</h1><p class="muted-text">Manage chatbot intents and responses</p></div>
+            <button class="btn btn-primary" onclick="document.getElementById('addModal').style.display='flex'">+ Add Intent</button>
+        </div>
+
+        <div class="tickets-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Intent</th><th>Sample Patterns</th><th>Response</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for item in kb_items %}
+                    <tr>
+                        <td><span class="intent-tag">{{ item.intent }}</span></td>
+                        <td class="muted-text" style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ item.patterns }}">{{ item.patterns[:80] }}{% if item.patterns|length > 80 %}…{% endif %}</td>
+                        <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ item.response }}">{{ item.response[:80] }}{% if item.response|length > 80 %}…{% endif %}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline" onclick="openEditModal({{ item.id }}, '{{ item.intent }}', `{{ item.patterns|replace('`','\\`') }}`, `{{ item.response|replace('`','\\`') }}`)">Edit</button>
+                            <form method="POST" action="{{ url_for('admin_kb_delete', kb_id=item.id) }}" style="display:inline" onsubmit="return confirm('Delete this entry?')">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="empty-row">No knowledge base entries found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- Add Modal -->
+<div class="modal-overlay" id="addModal" style="display:none">
+    <div class="modal">
+        <div class="modal-header"><h3>Add Intent</h3><button onclick="document.getElementById('addModal').style.display='none'" class="modal-close">&times;</button></div>
+        <form method="POST" action="{{ url_for('admin_kb_add') }}">
+            <div class="form-group"><label>Intent Tag</label><input type="text" name="intent" placeholder="e.g. password_reset" required></div>
+            <div class="form-group"><label>Patterns (pipe-separated)</label><textarea name="patterns" rows="3" placeholder="reset my password | forgot password | password expired" required></textarea></div>
+            <div class="form-group"><label>Response</label><textarea name="response" rows="3" placeholder="The bot response for this intent..." required></textarea></div>
+            <div class="form-actions"><button type="button" onclick="document.getElementById('addModal').style.display='none'" class="btn btn-outline">Cancel</button><button type="submit" class="btn btn-primary">Add Entry</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal" style="display:none">
+    <div class="modal">
+        <div class="modal-header"><h3>Edit Intent</h3><button onclick="document.getElementById('editModal').style.display='none'" class="modal-close">&times;</button></div>
+        <form method="POST" id="editForm">
+            <div class="form-group"><label>Intent Tag</label><input type="text" name="intent" id="editIntent" required></div>
+            <div class="form-group"><label>Patterns</label><textarea name="patterns" id="editPatterns" rows="3" required></textarea></div>
+            <div class="form-group"><label>Response</label><textarea name="response" id="editResponse" rows="3" required></textarea></div>
+            <div class="form-actions"><button type="button" onclick="document.getElementById('editModal').style.display='none'" class="btn btn-outline">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditModal(id, intent, patterns, response) {
+    document.getElementById('editIntent').value = intent;
+    document.getElementById('editPatterns').value = patterns;
+    document.getElementById('editResponse').value = response;
+    document.getElementById('editForm').action = `/admin/kb/edit/${id}`;
+    document.getElementById('editModal').style.display = 'flex';
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', (e) => { if (e.target === m) m.style.display = 'none'; });
+});
+</script>
+{% endblock %}
