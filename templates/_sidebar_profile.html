@@ -1,0 +1,16 @@
+{% macro sidebar_profile() %}
+<div class="sidebar-user">
+    <a href="{{ url_for('profile') }}" class="sidebar-profile-link" title="Open profile settings">
+        <div class="user-avatar {% if session.get('role') == 'admin' %}admin-avatar{% endif %}">
+            {{ (session.get('display_name') or session.get('username', 'U'))[0].upper() }}
+        </div>
+        <div class="user-info">
+            <span class="user-name">{{ session.get('display_name') or session.get('username') }}</span>
+            <span class="user-role">{{ 'Administrator' if session.get('role') == 'admin' else 'User' }} · View profile</span>
+        </div>
+    </a>
+    <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </a>
+</div>
+{% endmacro %}
