@@ -111,35 +111,50 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
+
+        CREATE TABLE IF NOT EXISTS app_meta (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        );
     ''')
 
-    # Seed the initial accounts. Upsert them so configured credentials remain
-    # usable when an existing SQLite database is reused after a deployment.
+    # Lightweight migration for databases created by earlier releases.
+    user_columns = {row[1] for row in cur.execute("PRAGMA table_info(users)").fetchall()}
+    if 'display_name' not in user_columns:
+        cur.execute("ALTER TABLE users ADD COLUMN display_name TEXT DEFAULT ''")
+
+    # Seed initial accounts and run the credential migration once. The marker
+    # prevents later restarts from undoing passwords or emails changed in Profile.
     admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
     admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
     admin_email = os.environ.get('ADMIN_EMAIL', 'admin@smartdesk.local')
     admin_pw = bcrypt.hashpw(admin_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    cur.execute('''
-        INSERT INTO users (username, email, password, role)
-        VALUES (?, ?, ?, ?)
-        ON CONFLICT(username) DO UPDATE SET
-            email=excluded.email,
-            password=excluded.password,
-            role=excluded.role
-    ''', (admin_username, admin_email, admin_pw, 'admin'))
+    cur.execute('''INSERT OR IGNORE INTO users (username, email, password, role)
+                   VALUES (?, ?, ?, ?)''', (admin_username, admin_email, admin_pw, 'admin'))
 
     user_username = os.environ.get('INITIAL_USER_USERNAME', 'user')
     user_password = os.environ.get('INITIAL_USER_PASSWORD', 'user123')
     user_email = os.environ.get('INITIAL_USER_EMAIL', 'user@smartdesk.local')
     user_pw = bcrypt.hashpw(user_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    cur.execute('''
-        INSERT INTO users (username, email, password, role)
-        VALUES (?, ?, ?, ?)
-        ON CONFLICT(username) DO UPDATE SET
-            email=excluded.email,
-            password=excluded.password,
-            role=excluded.role
-    ''', (user_username, user_email, user_pw, 'user'))
+    cur.execute('''INSERT OR IGNORE INTO users (username, email, password, role)
+                   VALUES (?, ?, ?, ?)''', (user_username, user_email, user_pw, 'user'))
+
+    credentials_migrated = cur.execute(
+        "SELECT 1 FROM app_meta WHERE key='initial_credentials_v1'"
+    ).fetchone()
+    if not credentials_migrated:
+        cur.execute(
+            "UPDATE users SET password=?, role='admin' WHERE username=?",
+            (admin_pw, admin_username)
+        )
+        cur.execute(
+            "UPDATE users SET password=?, role='user' WHERE username=?",
+            (user_pw, user_username)
+        )
+        cur.execute(
+            "INSERT INTO app_meta(key, value) VALUES('initial_credentials_v1', ?)",
+            (datetime.now().isoformat(timespec='seconds'),)
+        )
 
     # Seed knowledge base from intents.json
     intents_path = os.path.join(BASE_DIR, 'data', 'intents.json')
@@ -254,6 +269,7 @@ def login():
             session.clear()
             session['user_id'] = user['id']
             session['username'] = user['username']
+            session['display_name'] = user['display_name'] or user['username']
             session['role'] = user['role']
             return redirect(url_for('chat'))
         failures.append(time.time()); session['login_failures'] = failures
@@ -274,7 +290,12 @@ def admin_login():
             return render_template('admin_login.html'), 429
         if user and bcrypt.checkpw(password, user['password'].encode('utf-8')):
             session.clear()
-            session.update(user_id=user['id'], username=user['username'], role='admin')
+            session.update(
+                user_id=user['id'],
+                username=user['username'],
+                display_name=user['display_name'] or user['username'],
+                role='admin'
+            )
             return redirect(url_for('admin_dashboard'))
         failures.append(time.time()); session['admin_login_failures'] = failures
         flash('Invalid administrator credentials.', 'danger')
@@ -323,6 +344,88 @@ def logout():
     session.clear()
     flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
+
+
+@app.route('/profile')
+@login_required
+def profile():
+    db = get_db()
+    user = db.execute(
+        "SELECT id, username, email, display_name, role, created_at FROM users WHERE id=?",
+        (session['user_id'],)
+    ).fetchone()
+    if not user:
+        session.clear()
+        flash('Your account could not be found. Please sign in again.', 'warning')
+        return redirect(url_for('login'))
+
+    ticket_count = db.execute(
+        "SELECT COUNT(*) FROM tickets WHERE user_id=?", (user['id'],)
+    ).fetchone()[0]
+    message_count = db.execute(
+        "SELECT COUNT(*) FROM messages WHERE user_id=?", (user['id'],)
+    ).fetchone()[0]
+    return render_template(
+        'profile.html', user=user, ticket_count=ticket_count, message_count=message_count
+    )
+
+
+@app.route('/profile/update', methods=['POST'])
+@login_required
+def profile_update():
+    display_name = request.form.get('display_name', '').strip()
+    email = request.form.get('email', '').strip().lower()
+
+    if not display_name or not email:
+        flash('Name and email are required.', 'danger')
+        return redirect(url_for('profile'))
+    if len(display_name) > 80 or len(email) > 120 or '@' not in email:
+        flash('Enter a valid name and email address.', 'danger')
+        return redirect(url_for('profile'))
+
+    db = get_db()
+    try:
+        db.execute(
+            "UPDATE users SET display_name=?, email=? WHERE id=?",
+            (display_name, email, session['user_id'])
+        )
+        db.commit()
+        session['display_name'] = display_name
+        log_action('Profile updated', f'Name and email updated for {session["username"]}')
+        flash('Profile details updated successfully.', 'success')
+    except sqlite3.IntegrityError:
+        flash('That email address is already used by another account.', 'danger')
+    return redirect(url_for('profile'))
+
+
+@app.route('/profile/password', methods=['POST'])
+@login_required
+def profile_password():
+    current = request.form.get('current_password', '').encode('utf-8')
+    new_password = request.form.get('new_password', '').strip()
+    confirm = request.form.get('confirm_password', '').strip()
+    user = get_db().execute("SELECT password FROM users WHERE id=?", (session['user_id'],)).fetchone()
+
+    if not user or not bcrypt.checkpw(current, user['password'].encode('utf-8')):
+        flash('Current password is incorrect.', 'danger')
+        return redirect(url_for('profile'))
+    if new_password != confirm:
+        flash('New passwords do not match.', 'danger')
+        return redirect(url_for('profile'))
+    if len(new_password) < 8 or not any(c.isalpha() for c in new_password) or not any(c.isdigit() for c in new_password):
+        flash('New password must be at least 8 characters and contain letters and numbers.', 'danger')
+        return redirect(url_for('profile'))
+    if bcrypt.checkpw(new_password.encode('utf-8'), user['password'].encode('utf-8')):
+        flash('Choose a password different from your current password.', 'warning')
+        return redirect(url_for('profile'))
+
+    hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    db = get_db()
+    db.execute("UPDATE users SET password=? WHERE id=?", (hashed, session['user_id']))
+    db.commit()
+    log_action('Password changed', 'Account password updated')
+    flash('Password changed successfully.', 'success')
+    return redirect(url_for('profile'))
 
 
 # ──────────────────────────────────────────────
