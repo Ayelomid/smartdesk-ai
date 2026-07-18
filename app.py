@@ -113,15 +113,33 @@ def init_db():
         );
     ''')
 
-    # Seed admin user
+    # Seed the initial accounts. Upsert them so configured credentials remain
+    # usable when an existing SQLite database is reused after a deployment.
     admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
-    admin_password = os.environ.get('ADMIN_PASSWORD', 'change-me-before-deployment')
+    admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
     admin_email = os.environ.get('ADMIN_EMAIL', 'admin@smartdesk.local')
     admin_pw = bcrypt.hashpw(admin_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     cur.execute('''
-        INSERT OR IGNORE INTO users (username, email, password, role)
+        INSERT INTO users (username, email, password, role)
         VALUES (?, ?, ?, ?)
+        ON CONFLICT(username) DO UPDATE SET
+            email=excluded.email,
+            password=excluded.password,
+            role=excluded.role
     ''', (admin_username, admin_email, admin_pw, 'admin'))
+
+    user_username = os.environ.get('INITIAL_USER_USERNAME', 'user')
+    user_password = os.environ.get('INITIAL_USER_PASSWORD', 'user123')
+    user_email = os.environ.get('INITIAL_USER_EMAIL', 'user@smartdesk.local')
+    user_pw = bcrypt.hashpw(user_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    cur.execute('''
+        INSERT INTO users (username, email, password, role)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(username) DO UPDATE SET
+            email=excluded.email,
+            password=excluded.password,
+            role=excluded.role
+    ''', (user_username, user_email, user_pw, 'user'))
 
     # Seed knowledge base from intents.json
     intents_path = os.path.join(BASE_DIR, 'data', 'intents.json')
