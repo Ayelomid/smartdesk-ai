@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_sidebar_profile.html" import sidebar_profile %}
+{% block title %}My Profile — SmartDesk AI{% endblock %}
+{% block body %}
+<div class="app-layout">
+    <aside class="sidebar {% if user.role == 'admin' %}sidebar-admin{% endif %}">
+        <div class="sidebar-logo">
+            <div class="logo-icon-sm"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#2563EB"/><path d="M8 20L14 14L18 18L24 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="12" r="2" fill="white"/></svg></div>
+            <span>SmartDesk AI</span>
+        </div>
+        <div class="sidebar-section-label">{{ 'ADMIN' if user.role == 'admin' else 'SUPPORT' }}</div>
+        <nav class="sidebar-nav">
+            {% if user.role == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-item">Dashboard</a>
+                <a href="{{ url_for('admin_tickets') }}" class="nav-item">All Tickets</a>
+                <a href="{{ url_for('admin_kb') }}" class="nav-item">Knowledge Base</a>
+                <a href="{{ url_for('admin_users') }}" class="nav-item">Users</a>
+            {% else %}
+                <a href="{{ url_for('chat') }}" class="nav-item">Chat Support</a>
+                <a href="{{ url_for('tickets') }}" class="nav-item">My Tickets</a>
+                <a href="{{ url_for('submit_ticket') }}" class="nav-item">Raise Ticket</a>
+            {% endif %}
+            <a href="{{ url_for('profile') }}" class="nav-item active">Profile Settings</a>
+        </nav>
+        {{ sidebar_profile() }}
+    </aside>
+
+    <main class="page-main profile-page">
+        <div class="page-header">
+            <div><h1>My Profile</h1><p class="muted-text">Manage your personal details and account security</p></div>
+            <span class="role-badge {{ 'role-admin' if user.role == 'admin' else 'role-user' }}">{{ user.role|title }}</span>
+        </div>
+
+        <section class="profile-hero">
+            <div class="profile-avatar-large {{ 'admin-avatar' if user.role == 'admin' }}">{{ (user.display_name or user.username)[0].upper() }}</div>
+            <div><h2>{{ user.display_name or user.username }}</h2><p>@{{ user.username }} · Member since {{ user.created_at[:10] }}</p></div>
+        </section>
+
+        <div class="profile-stats">
+            <div><strong>{{ ticket_count }}</strong><span>Support tickets</span></div>
+            <div><strong>{{ message_count }}</strong><span>Chat messages</span></div>
+            <div><strong>{{ user.role|title }}</strong><span>Account access</span></div>
+        </div>
+
+        <div class="profile-grid">
+            <form method="POST" action="{{ url_for('profile_update') }}" class="form-card profile-card">
+                <div class="section-header"><div><h2>Personal details</h2><p class="muted-text">Information shown in your SmartDesk account</p></div></div>
+                <div class="form-group"><label for="display_name">Full name / display name</label><input id="display_name" name="display_name" value="{{ user.display_name or user.username }}" maxlength="80" required></div>
+                <div class="form-group"><label for="username">Username</label><input id="username" value="{{ user.username }}" disabled><small class="field-help">Your sign-in username is managed by the system.</small></div>
+                <div class="form-group"><label for="email">Email address</label><input type="email" id="email" name="email" value="{{ user.email }}" maxlength="120" required></div>
+                <div class="form-actions"><button class="btn btn-primary" type="submit">Save profile</button></div>
+            </form>
+
+            <form method="POST" action="{{ url_for('profile_password') }}" class="form-card profile-card">
+                <div class="section-header"><div><h2>Change password</h2><p class="muted-text">Use at least 8 characters with letters and numbers</p></div></div>
+                <div class="form-group"><label for="current_password">Current password</label><input type="password" id="current_password" name="current_password" autocomplete="current-password" required></div>
+                <div class="form-group"><label for="new_password">New password</label><input type="password" id="new_password" name="new_password" autocomplete="new-password" minlength="8" required></div>
+                <div class="form-group"><label for="confirm_password">Confirm new password</label><input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" minlength="8" required></div>
+                <div class="form-actions"><button class="btn btn-primary" type="submit">Update password</button></div>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}
